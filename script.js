@@ -1,27 +1,27 @@
 (() => {
   "use strict";
-
+ 
   const API_BASE = "https://mental-health-score-predictor-2-749f.onrender.com";
-
+ 
   const form = document.getElementById("predict-form");
   const submitBtn = document.getElementById("submit-btn");
   const resetBtn = document.getElementById("reset-btn");
   const errorRetryBtn = document.getElementById("error-retry-btn");
-
+ 
   const stateIdle = document.getElementById("state-idle");
   const stateLoading = document.getElementById("state-loading");
   const stateResult = document.getElementById("state-result");
   const stateError = document.getElementById("state-error");
-
+ 
   const scoreNumberEl = document.getElementById("score-number");
   const scoreBandEl = document.getElementById("score-band");
   const scoreContextEl = document.getElementById("score-context");
   const gaugeFill = document.getElementById("gauge-fill");
   const errorLabelEl = document.getElementById("error-label");
   const errorCopyEl = document.getElementById("error-copy");
-
+ 
   const GAUGE_ARC_LENGTH = 314; // approx pi * r(100)
-
+ 
   // ---------------------------------------------------------
   // Draw tick marks on both gauges (0..10, every 2 units)
   // ---------------------------------------------------------
@@ -45,7 +45,7 @@
     });
   }
   drawTicks();
-
+ 
   // ---------------------------------------------------------
   // Segmented control (stress_level) wiring
   // ---------------------------------------------------------
@@ -59,14 +59,14 @@
       clearFieldError(stressHiddenInput);
     });
   });
-
+ 
   // ---------------------------------------------------------
   // Field-level error helpers
   // ---------------------------------------------------------
   function fieldWrapper(input) {
     return input.closest(".field");
   }
-
+ 
   function setFieldError(input, message) {
     const wrap = fieldWrapper(input);
     if (!wrap) return;
@@ -74,7 +74,7 @@
     const msgEl = wrap.querySelector(".error-msg");
     if (msgEl) msgEl.textContent = message;
   }
-
+ 
   function clearFieldError(input) {
     const wrap = fieldWrapper(input);
     if (!wrap) return;
@@ -82,18 +82,18 @@
     const msgEl = wrap.querySelector(".error-msg");
     if (msgEl) msgEl.textContent = "";
   }
-
+ 
   function clearAllErrors() {
     form.querySelectorAll(".field").forEach((f) => f.classList.remove("field-error"));
     form.querySelectorAll(".error-msg").forEach((m) => (m.textContent = ""));
   }
-
+ 
   // ---------------------------------------------------------
   // Client-side validation mirroring the StudentData model
   // ---------------------------------------------------------
   function validate(payload) {
     const errors = [];
-
+ 
     const numericChecks = [
       ["age", 10, 100],
       ["avg_daily_usage_hours", 0, 24],
@@ -102,7 +102,7 @@
       ["physical_activity_hours", 0, 24],
       ["sleep_hours_per_night", 0, 24],
     ];
-
+ 
     numericChecks.forEach(([key, min, max]) => {
       const input = document.getElementById(key);
       const val = payload[key];
@@ -112,21 +112,21 @@
         errors.push([input, `Must be between ${min} and ${max === Infinity ? "0+" : max}.`]);
       }
     });
-
+ 
     ["gender", "country", "academic_level", "most_used_platform", "purpose_of_use"].forEach((key) => {
       const input = document.getElementById(key);
       if (!payload[key] || String(payload[key]).trim() === "") {
         errors.push([input, "This field is required."]);
       }
     });
-
+ 
     if (!payload.stress_level) {
       errors.push([stressHiddenInput, "Pick a stress level."]);
     }
-
+ 
     return errors;
   }
-
+ 
   // ---------------------------------------------------------
   // Gather form data into the exact StudentData shape
   // ---------------------------------------------------------
@@ -147,7 +147,7 @@
       stress_level: fd.get("stress_level") || "",
     };
   }
-
+ 
   // ---------------------------------------------------------
   // UI state switching
   // ---------------------------------------------------------
@@ -155,12 +155,12 @@
     [stateIdle, stateLoading, stateResult, stateError].forEach((el) => (el.hidden = true));
     ({ idle: stateIdle, loading: stateLoading, result: stateResult, error: stateError }[name]).hidden = false;
   }
-
+ 
   function setSubmitting(isSubmitting) {
     submitBtn.disabled = isSubmitting;
     submitBtn.classList.toggle("loading", isSubmitting);
   }
-
+ 
   function bandFor(score) {
     if (score < 4) {
       return {
@@ -179,15 +179,15 @@
       context: "Your habits point to a well-supported, resilient baseline. Keep it up.",
     };
   }
-
+ 
   function renderResult(score) {
     const clamped = Math.max(0, Math.min(10, score));
     const { label, context } = bandFor(clamped);
-
+ 
     scoreNumberEl.textContent = score.toFixed(2);
     scoreBandEl.textContent = label;
     scoreContextEl.textContent = context;
-
+ 
     // reset then animate the arc fill on next frame
     gaugeFill.style.transition = "none";
     gaugeFill.style.strokeDashoffset = String(GAUGE_ARC_LENGTH);
@@ -196,16 +196,16 @@
       const offset = GAUGE_ARC_LENGTH * (1 - clamped / 10);
       gaugeFill.style.strokeDashoffset = String(offset);
     });
-
+ 
     showState("result");
   }
-
+ 
   function renderError(label, copy) {
     errorLabelEl.textContent = label;
     errorCopyEl.textContent = copy;
     showState("error");
   }
-
+ 
   // ---------------------------------------------------------
   // Parse FastAPI / Pydantic 422 error responses into
   // field-level messages where possible
@@ -224,33 +224,33 @@
     });
     return matched;
   }
-
+ 
   // ---------------------------------------------------------
   // Submit handler
   // ---------------------------------------------------------
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     clearAllErrors();
-
+ 
     const payload = collectPayload();
     const clientErrors = validate(payload);
-
+ 
     if (clientErrors.length > 0) {
       clientErrors.forEach(([input, msg]) => input && setFieldError(input, msg));
       clientErrors[0][0]?.focus?.();
       return;
     }
-
+ 
     setSubmitting(true);
     showState("loading");
-
+ 
     try {
       const res = await fetch(`${API_BASE}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
+ 
       if (res.status === 422) {
         const body = await res.json().catch(() => null);
         const matched = body && applyServerValidationErrors(body.detail);
@@ -262,7 +262,7 @@
         );
         return;
       }
-
+ 
       if (!res.ok) {
         let detailMsg = `The API responded with status ${res.status}.`;
         const body = await res.json().catch(() => null);
@@ -270,13 +270,13 @@
         renderError("Prediction failed", detailMsg);
         return;
       }
-
+ 
       const data = await res.json();
       if (typeof data.predicted_mental_health_score !== "number") {
         renderError("Unexpected response", "The API responded, but the score was missing or malformed.");
         return;
       }
-
+ 
       renderResult(data.predicted_mental_health_score);
     } catch (err) {
       renderError(
@@ -287,18 +287,19 @@
       setSubmitting(false);
     }
   });
-
+ 
   // live-clear errors as the user edits
   form.querySelectorAll("input, select").forEach((el) => {
     el.addEventListener("input", () => clearFieldError(el));
     el.addEventListener("change", () => clearFieldError(el));
   });
-
+ 
   resetBtn.addEventListener("click", () => {
     showState("idle");
   });
-
+ 
   errorRetryBtn.addEventListener("click", () => {
     showState("idle");
   });
 })();
+ 

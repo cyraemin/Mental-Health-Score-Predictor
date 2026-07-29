@@ -8,11 +8,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
-</head>S
+</head>
 <body>
-
+ 
 <div class="noise-overlay" aria-hidden="true"></div>
-
+ 
 <header class="site-header">
   <div class="header-inner">
     <span class="eyebrow">Student Wellness Analytics</span>
@@ -20,13 +20,13 @@
     <p class="subtitle">A quick read on how habits, screen time, and stress are trending — modeled from your daily rhythm, not a diagnosis.</p>
   </div>
 </header>
-
+ 
 <main class="layout">
-
+ 
   <!-- FORM PANEL -->
   <section class="panel form-panel" aria-labelledby="form-heading">
     <form id="predict-form" novalidate>
-
+ 
       <fieldset class="group">
         <legend><span class="legend-index">01</span> Profile</legend>
         <div class="grid grid-3">
@@ -64,7 +64,7 @@
           </div>
         </div>
       </fieldset>
-
+ 
       <fieldset class="group">
         <legend><span class="legend-index">02</span> Academic &amp; Digital Habits</legend>
         <div class="grid grid-2">
@@ -123,7 +123,7 @@
           </div>
         </div>
       </fieldset>
-
+ 
       <fieldset class="group">
         <legend><span class="legend-index">03</span> Lifestyle &amp; Stress</legend>
         <div class="grid grid-3">
@@ -164,7 +164,7 @@
           </div>
         </div>
       </fieldset>
-
+ 
       <div class="form-footer">
         <button type="submit" class="submit-btn" id="submit-btn">
           <span class="btn-label">Read my signal</span>
@@ -173,11 +173,11 @@
       </div>
     </form>
   </section>
-
+ 
   <!-- RESULT PANEL -->
   <aside class="panel result-panel" aria-live="polite">
     <div class="result-inner" id="result-inner">
-
+ 
       <div class="state state-idle" id="state-idle">
         <svg class="gauge gauge-idle" viewBox="0 0 240 160" aria-hidden="true">
           <path class="gauge-track" d="M 30 140 A 100 100 0 0 1 210 140" />
@@ -186,13 +186,13 @@
         <p class="idle-label">Your score will appear here</p>
         <p class="idle-copy">Fill in the form and submit to generate a predicted mental health score from 0–10.</p>
       </div>
-
+ 
       <div class="state state-loading" id="state-loading" hidden>
         <div class="pulse-ring"></div>
         <p class="loading-label">Reading the signal…</p>
         <p class="loading-copy">Running your habits through the model.</p>
       </div>
-
+ 
       <div class="state state-result" id="state-result" hidden>
         <svg class="gauge gauge-result" viewBox="0 0 240 160" aria-hidden="true">
           <defs>
@@ -215,22 +215,24 @@
         <p class="score-context" id="score-context"></p>
         <button type="button" class="reset-btn" id="reset-btn">Run another read</button>
       </div>
-
+ 
       <div class="state state-error" id="state-error" hidden>
         <div class="error-icon" aria-hidden="true">!</div>
+        <p class="error-label" id="error-label"></p>
         <p class="error-copy" id="error-copy"></p>
         <button type="button" class="reset-btn" id="error-retry-btn">Try again</button>
       </div>
-
+ 
     </div>
   </aside>
-
+ 
 </main>
-
+ 
 <footer class="site-footer">
   <p>Built for informational purposes only — this is not a clinical assessment. If you're struggling, please talk to someone you trust.</p>
 </footer>
-
+ 
 <script src="script.js"></script>
 </body>
 </html>
+ 
